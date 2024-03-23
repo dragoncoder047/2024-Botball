@@ -21,19 +21,51 @@ int main()
   //Lift Person
     set_servo_position(1, 350);
     msleep(750);
-  //Drive curved
-    motor(1,-100);
-    motor(2,-100);
-    msleep(800);
-  //Turn Left
-    motor(1, -1000);
-    motor (2, -10);
-    msleep(500); 
-   //Move forward
+  //Drive straight a bit
+    motor(1,-500);
+    motor(2,-500);
+    msleep(1000);
+   //Turn left
+    motor(2,-1000);
+    motor(1,1000);
+    msleep(500);
+    motor(1,-500);
+    motor(2,-500);
+    msleep(1000);
+  //Turn right
     motor(1,-1000);
-    motor(2,-580);
-    msleep(5400);
-    //Lower Claw
+    motor(2,1000);
+    msleep(1000);
+    motor(1,-500);
+    motor(2,-500);
+    msleep(6000);
+    motor(1,500);
+    motor(2,500);
+    msleep(1000);
+    motor(1,-1000);
+    motor(2,1000);
+    msleep(800);
+    motor(1,-400);
+    motor(2,-300);
+    msleep(1500);
+    motor(1,-70);
+    motor(2,-10);
+    msleep(500);
+    
+    //Drop in person
+    while (!digital(8)) msleep(10);
+    motor(1,0);
+    motor(2,0);
+    msleep(100);
+    motor(1,500);
+    motor(2,500);
+    msleep(1000);
+    motor(2,-1000);
+    motor(1,100);
+    msleep(475);
+    motor(1,-150);
+    motor(2,-150);
+    msleep(275);
     motor(1,0);
     motor(2,0);
     msleep(100);
@@ -42,13 +74,24 @@ int main()
     set_servo_position(1,1290);  
     msleep(1000);
     set_servo_position(2,250);
-    msleep(50);
+    msleep(1700);
     
-    //End of "Raising Flag" Mission
+    //Hit the guy on the head
+    set_servo_position(1,400);
+    msleep(2000);
+    set_servo_position(2,2000);
+    msleep(2000);
+    set_servo_position(1,1600);
+    msleep(1500);
+    set_servo_position(1,400);
+    msleep(2000);
+    set_servo_position(2,2000);
+    msleep(2000);
+    set_servo_position(1,1600);
+    msleep(1500); 
     
-    //Flip the Switch Mission
    return 0;
-
+    
     
     
     
