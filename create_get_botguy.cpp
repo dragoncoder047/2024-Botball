@@ -1,10 +1,11 @@
 #include <kipr/wombat.h>
+#include <iostream>
 
 #define light_sensor (analog(1))
 #define line_sensor (analog(4))
 #define line_on_black (line_sensor > 1000)
 
-#define pause(...) //create3_wait()
+#define wait(...) create3_wait()
 
 #define elbow(x) slow_servo(2, x)
 #define ELBOW_STOWED 0
@@ -33,8 +34,6 @@ void wrist(int pos) {
 #define WRIST_BOTGUY 70
 
 void setup() {
-    create3_connect();
-    printf("Create3 Connected.\n");
     enable_servos();
     elbow(ELBOW_STOWED);
     claw(CLAW_OPEN);
@@ -42,65 +41,38 @@ void setup() {
 }
 
 void wfl() {
-    printf("TODO: IMPLEMENT wfl()\n");
-    msleep(1000);
-    return;
+    std::cout << "TODO: IMPLEMENT wfl()" << std::endl;
 }
 
 int main() {
+    create3_connect();
+    std::cout << "create3 connect returned" << std::endl;
     setup();
     wfl();
+    std::cout << "back in main()" << std::endl;
     //#1 Drive to black line (cliff #2)
-    double velocity = 0.15;
-    create3_velocity_set_components(velocity,0);
-    //create3_wait();
+    create3_drive_straight(0.92, .25);
+    wait();
 
-    msleep(5000); // Skip over first black line
-    while (velocity !=0) {
-        if (line_on_black) {
-            printf("Black Line 1\n");
-            velocity = 0;
-        }
-        create3_velocity_set_components(velocity,0);
-        //create3_wait();
-    }
-    pause();
-	
     // Pull arm out of the way
     elbow(ELBOW_BOTGUY);
     wrist(WRIST_BOTGUY);
-    claw(CLAW_CLOSED);
+    claw(CLAW_OPEN);
 
     //#2 Rotate left 90d
+    sweeper(100);
     create3_rotate_degrees(90,45);
-    create3_wait();
-    pause();
+    wait();
 
     //#3 Drive to base (line sensor) (may want to try line following)
-    sweeper(100);
-    velocity = 0.15;
-    create3_velocity_set_components(velocity,0);
-    //create3_wait();
-    msleep(5000); // Skip over first black line
-    while (velocity !=0) {
-        if (line_on_black) {
-            printf("Black Line 2\n");
-            velocity = 0;
-        }
-        create3_velocity_set_components(velocity,0);
-        //create3_wait();
-    }
+    create3_drive_straight(0.5, .25);
+    wait();
     sweeper(0);
-    pause();
 
     //#4 Get Botguy and Cubes
-    printf("Get Botguy and cubes\n");
-    pause();
+    std::cout << "Get Botguy and cubes" << std::endl;
 
     // Close down robot
-    ao();
-    disable_servos();
     create3_wait();
-    printf("done");
     return 0;
 }
