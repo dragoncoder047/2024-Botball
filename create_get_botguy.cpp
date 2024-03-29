@@ -9,7 +9,7 @@
 
 #define elbow(x) slow_servo(2, x)
 #define ELBOW_STOWED 0
-#define ELBOW_BOTGUY 1520
+#define ELBOW_BOTGUY 1590
 
 #define sweeper(x) motor(3, x)
 
@@ -31,7 +31,7 @@ void wrist(int pos) {
     mav(0, 0);
 }
 #define WRIST_STOWED 4060
-#define WRIST_BOTGUY 70
+#define WRIST_BOTGUY 140
 
 void setup() {
     enable_servos();
@@ -51,7 +51,7 @@ int main() {
     wfl();
     std::cout << "back in main()" << std::endl;
     //#1 Drive to black line (cliff #2)
-    create3_drive_straight(0.92, .25);
+    create3_drive_straight(0.96, .5);
     wait();
 
     // Pull arm out of the way
@@ -60,17 +60,50 @@ int main() {
     claw(CLAW_OPEN);
 
     //#2 Rotate left 90d
-    sweeper(100);
     create3_rotate_degrees(90,45);
     wait();
 
-    //#3 Drive to base (line sensor) (may want to try line following)
-    create3_drive_straight(0.5, .25);
+    //#3 Drive to base
+    sweeper(100);
+    create3_drive_straight(0.48, .1);
     wait();
     sweeper(0);
+    create3_drive_straight(0.08, .5);
+    wait();
 
     //#4 Get Botguy and Cubes
     std::cout << "Get Botguy and cubes" << std::endl;
+
+    claw(CLAW_CLOSED);
+    msleep(1000);
+    elbow(ELBOW_STOWED);
+
+    // Turn to drop Botguy
+    create3_drive_straight(-0.1, 0.5);
+    wait();
+    create3_rotate_degrees(60,45);
+    wait();
+    claw(CLAW_OPEN);
+    msleep(1000);
+    create3_rotate_degrees(-60,45);
+    wait();
+
+    // Go back to get cube, but not all the way
+    create3_drive_straight(0.1, 0.5);
+    wait();
+    create3_rotate_degrees(-10, 45);
+    wait();
+
+    // Grab yellow cube
+    elbow(ELBOW_BOTGUY);
+    claw(CLAW_CLOSED);
+    msleep(1000);
+    // Back up to drag cube
+    create3_drive_straight(-0.4, 0.5);
+    wait();
+    // Let go
+    claw(CLAW_OPEN);
+    msleep(1000);
 
     // Close down robot
     create3_wait();
