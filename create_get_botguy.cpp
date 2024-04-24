@@ -11,11 +11,23 @@
 #define ELBOW_STOWED 0
 #define ELBOW_BOTGUY 1590
 
-#define sweeper(x) motor(3, x)
-
 #define claw(x) set_servo_position(3, x)
 #define CLAW_OPEN 2047
 #define CLAW_CLOSED 0
+
+#define sweeper_on() motor_power(2, 100)
+#define sweeper_off() mav(2, 0)
+void sweeper_home() {
+    sweeper_on();
+    while (!digital(9));
+    msleep(200);
+    sweeper_off();
+}
+
+#define switcher(x) set_servo_position(0, x)
+#define SWITCHER_DOWN 2047
+#define SWITCHER_UP 0
+#define SWITCHER_NOPIPE 1300
 
 void slow_servo(int which, int to) {
     int from = get_servo_position(which);
@@ -33,20 +45,46 @@ void wrist(int pos) {
 #define WRIST_STOWED 4060
 #define WRIST_BOTGUY 140
 
+void create3_run_into_wall() {
+    for (int i = 0; create3_sensor_bump(i) == 0 /*&& create3_sensor_ir(3) < -10000*/; i = (i + 1) % 5) {
+        create3_velocity_set_components(0.5, 0);
+    }
+    create3_velocity_set_components(0, 0);
+    create3_execute_next_command_post_haste();
+    create3_wait();
+}
+
 void setup() {
     enable_servos();
     elbow(ELBOW_STOWED);
     claw(CLAW_OPEN);
     wrist(WRIST_STOWED);
+    switcher(SWITCHER_DOWN);
+    msleep(400);
+    sweeper_home();
+    create3_connect();
 }
 
 void wfl() {
-    std::cout << "TODO: IMPLEMENT wfl()" << std::endl;
+    int start = analog(0);
+    std::cout << "Wait for light, press b to bypass" << std::endl;
+    while (analog(0) > start / 2) {
+        msleep(1);
+        if (b_button()) break;
+    }
+    std::cout << "Start Game!" << std::endl;
+}
+
+void pause() {
+    std::cout << "Wait for other robot to pass, press b to bypass" << std::endl;
+    for (int i = 0; i < 10000; i++) {
+        msleep(1);
+        if (b_button()) break;
+    }
+    std::cout << "Wait Over" << std::endl;
 }
 
 int main() {
-    create3_connect();
-    std::cout << "create3 connect returned" << std::endl;
     setup();
     wfl();
     std::cout << "back in main()" << std::endl;
@@ -63,12 +101,13 @@ int main() {
     create3_rotate_degrees(90,45);
     wait();
 
-    //#3 Drive to base
-    sweeper(100);
-    create3_drive_straight(0.48, .1);
+    //#3 Drive to base and sweep
+    sweeper_on();
+    create3_drive_straight(0.48, .5);
     wait();
-    sweeper(0);
-    create3_drive_straight(0.08, .5);
+    sweeper_home();
+    switcher(SWITCHER_NOPIPE);
+    create3_run_into_wall();
     wait();
 
     //#4 Get Botguy and Cubes
@@ -79,7 +118,7 @@ int main() {
     elbow(ELBOW_STOWED);
 
     // Turn to drop Botguy
-    create3_drive_straight(-0.1, 0.5);
+    create3_drive_straight(-0.1, 0.2);
     wait();
     create3_rotate_degrees(60,45);
     wait();
@@ -88,18 +127,29 @@ int main() {
     create3_rotate_degrees(-60,45);
     wait();
 
-    // Go back to get cube, but not all the way
-    create3_drive_straight(0.1, 0.5);
+    // Go back to get cube
+    create3_drive_straight(0.1, 0.2);
+    create3_run_into_wall();
     wait();
     create3_rotate_degrees(-10, 45);
     wait();
+    pause();
 
-    // Grab yellow cube
+    // Grab yellow cube and hit switch
     elbow(ELBOW_BOTGUY);
     claw(CLAW_CLOSED);
+    switcher(SWITCHER_UP);
     msleep(1000);
+    // Back and turn to get the second cube
+    create3_drive_straight(-0.08, 0.2);
+    wait();
+    create3_rotate_degrees(-10, 45);
+    wait();
+    
     // Back up to drag cube
-    create3_drive_straight(-0.4, 0.5);
+    create3_drive_straight(-0.3, 0.2);
+    // Turn
+    create3_rotate_degrees(60, 45);
     wait();
     // Let go
     claw(CLAW_OPEN);
