@@ -10,6 +10,7 @@
 #define elbow(x) slow_servo(2, x)
 #define ELBOW_STOWED 0
 #define ELBOW_BOTGUY 1590
+#define ELBOW_DOWN 2047
 
 #define claw(x) set_servo_position(3, x)
 #define CLAW_OPEN 2047
@@ -42,8 +43,10 @@ void wrist(int pos) {
     while (abs(wrist_position - pos) > 10) mav(0, 16 * (pos - wrist_position));
     mav(0, 0);
 }
+void jiggle() { for (int i = 0; i < 7; i++) { mav(0, 1500); msleep(100); mav(0, -1500); msleep(100); } mav(0, 0); }
 #define WRIST_STOWED 4060
 #define WRIST_BOTGUY 140
+#define WRIST_DOWN 10
 
 void create3_run_into_wall() {
     for (int i = 0; create3_sensor_bump(i) == 0 /*&& create3_sensor_ir(3) < -10000*/; i = (i + 1) % 5) {
@@ -122,6 +125,7 @@ int main() {
     wait();
     create3_rotate_degrees(60,45);
     wait();
+    elbow(ELBOW_STOWED);
     claw(CLAW_OPEN);
     msleep(1000);
     create3_rotate_degrees(-60,45);
@@ -147,11 +151,13 @@ int main() {
     wait();
     
     // Back up to drag cube
-    create3_drive_straight(-0.3, 0.2);
+    create3_drive_straight(-0.25, 0.2);
     // Turn
     create3_rotate_degrees(60, 45);
     wait();
     // Let go
+    elbow(ELBOW_DOWN);
+    wrist(WRIST_DOWN);
     claw(CLAW_OPEN);
     msleep(1000);
 
