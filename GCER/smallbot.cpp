@@ -18,7 +18,7 @@
 #define Claw (3)
 #define ArmDown (150)
 #define ArmUp (950)
-#define ClawOpen (790)
+#define ClawOpen (740)
 #define ClawClose (0) 
 #define Speed (1200)
 
@@ -96,26 +96,25 @@ int main() {
     move(-1400, -900, 1600);
     move(1800, 600, 1900);
     move(1900, -200, 1000);
-    move(-Speed, -Speed, 2500, 500);
-    move(200, Speed, 300);
-    move(Speed, Speed, 200);
-    slow_servo(Arm,ArmDown);
-    msleep(500);
+    move(-900, -1200, 2500, 500);
+    move(200, Speed, 1200);
+    move(Speed, Speed, 200, 500);
     set_servo_position(Claw,ClawOpen);
     msleep(500);
-    set_servo_position(Arm,ArmUp);
-    msleep(500);
 
-
-    mav(LeftWheel,Speed); mav(RightWheel,Speed);
-    while (On_White); // Stop on 1st line
-    move(0, 0, 0, 1000);
-    move(Speed, Speed, 950, 550);
-
+    
+    // Return to Start Box and square up
+    mav(LeftWheel, -Speed); mav(RightWheel, -Speed);
+    while (On_White);
+    move(Speed, -Speed, 300, 500);
+    // Now squared up again
+	
+ 	// Normal get man to put in flag station
+    move(Speed, Speed, 500, 550);
     set_servo_position(Claw, ClawOpen); 
 
     move(1000, -1000, 1000, 2000); // Turn right 30d
-    move(Speed, Speed, 140);
+    move(Speed, Speed, 45);
     slow_servo(Arm, ArmDown);
 
 
@@ -123,7 +122,7 @@ int main() {
     msleep(1000);
     set_servo_position(Arm, ArmUp);
     msleep(1000);
-    move(1200, -250, 800);
+    move(1200, 250, 800);
 
     // Go forward 12 sec
     move(1100, 1080, 12000);
